@@ -1,6 +1,6 @@
 ---
-title: "hw07_PartII"
-author: "bohan yin"
+title: "hw07: PartII"
+author: "Bohan Yin"
 date: "11/17/2019"
 output:
   pdf_document:
@@ -36,7 +36,7 @@ answer_yes <- round(sum(race_data$colrac)/nrow(race_data), 2) *100
   
 ```
 
-## Part 2: Predicting attitudes towards racist college professors
+## Predicting attitudes towards racist college professors
 The General Social Survey (GSS) conducted the national survey with the question of "Should a person who believes that Blacks are genetically inferior be allowed to teach in a college or university?” Regarding this question, many explanations focus on a resource model of personal features – such as age, race, received education, income and etc. In its questionnaire, the respondents' were asked to respond to this question by filling out several columns of their personal information and thoughts, and according to the survey, `r answer_yes`% of Americans answered "Yes" to this question. How do those features affect the attitude towards racist college professors? How are they differ in terms of their influence?
 
 The following analysis tries to investigate in attitudes towards racism, using the GSS and this specific question. It aims to find some of the underlying factors that affect the attitude toward racist college professors. To perform this analysis, I used two models, one logistic regression model and one model from lasso penalized regression, and compared their results trying to see if there is a better model to fit.
@@ -148,7 +148,7 @@ kable(tidy(model2),
       caption = "Logistic Regression Results")
 ```
 
-Checing from P-value, we found that degree, political identification as extreme conservative, being socially conservative, coming from South and tolerance are significant variables we should consider.  In particular, there are several variables that influence the attitude at a higher degree:
+Checking from P-value, we found that degree, political identification as extreme conservative, being socially conservative, coming from South and tolerance are significant variables we should consider.  In particular, there are several variables that influence the attitude at a higher degree:
 
 - Compared with being a conservative, an extreme conservative people will increase the odd to allow racist to teach in college by 0.96 (1.558-0.333-0.260).
 - Compared with a high school degree people, a graduate degree people will become less likely to allow racist to teach in college by 0.186.
@@ -167,6 +167,9 @@ In addition, other confounding variables: there might be confounding variables t
 
 
 ### Reference
-[lasso](https://stats.stackexchange.com/questions/251708/when-to-use-ridge-regression-and-lasso-regression-what-can-be-achieved-while-us)
+[lasso: https://stats.stackexchange.com/questions/251708/when-to-use-ridge-regression-and-lasso-regression-what-can-be-achieved-while-us](https://stats.stackexchange.com/questions/251708/when-to-use-ridge-regression-and-lasso-regression-what-can-be-achieved-while-us)
 
+```{r include = FALSE}
+devtools::session_info()
+``` 
 
