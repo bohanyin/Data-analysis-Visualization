@@ -4,8 +4,8 @@ The first part of the assignment is using the data related to President Trump to
 
 You can find my assignments here:
 
-* [part1](hw07_PartI.Rmd) or [md](hw07_PartI.md)
-* [part2](hw07_PartII.Rmd) or [md](hw07_PartII.md)
+* [part1](hw07_PartI.Rmd) or [pdf](hw07_PartI.pdf)
+* [part2](hw07_PartII.Rmd) or [pdf](hw07_PartII.pdf)
 
 
 *The naref.R file in the repository is also required for assignment part 2, so please clone that as well.
