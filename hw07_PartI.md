@@ -63,6 +63,52 @@ The table below shows the result of the model:
     ## 6 educ          -1.30     0.170      -7.69 1.97e- 14
     ## 7 video:pid     -0.992    0.136      -7.29 3.90e- 13
 
+    ## 
+    ## % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+    ## % Date and time: Tue, Nov 19, 2019 - 02:12:28
+    ## \begin{table}[!htbp] \centering 
+    ##   \caption{Table 1: Regression Results Importance of the Video and Feelings towards Trump} 
+    ##   \label{} 
+    ## \begin{tabular}{@{\extracolsep{5pt}}lc} 
+    ## \\[-1.8ex]\hline 
+    ## \hline \\[-1.8ex] 
+    ##  & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
+    ## \cline{2-2} 
+    ## \\[-1.8ex] & Feelings towards Trump \\ 
+    ## \hline \\[-1.8ex] 
+    ##  Importance of the video & $-$7.468$^{***}$ \\ 
+    ##   & (0.491) \\ 
+    ##   & \\ 
+    ##  female & $-$0.851 \\ 
+    ##   & (0.773) \\ 
+    ##   & \\ 
+    ##  pid & 8.761$^{***}$ \\ 
+    ##   & (0.357) \\ 
+    ##   & \\ 
+    ##  age & 0.124$^{***}$ \\ 
+    ##   & (0.022) \\ 
+    ##   & \\ 
+    ##  educ & $-$1.304$^{***}$ \\ 
+    ##   & (0.170) \\ 
+    ##   & \\ 
+    ##  video:pid & $-$0.992$^{***}$ \\ 
+    ##   & (0.136) \\ 
+    ##   & \\ 
+    ##  Constant & 39.656$^{***}$ \\ 
+    ##   & (2.522) \\ 
+    ##   & \\ 
+    ## \hline \\[-1.8ex] 
+    ## Observations & 3,231 \\ 
+    ## R$^{2}$ & 0.612 \\ 
+    ## Adjusted R$^{2}$ & 0.612 \\ 
+    ## Residual Std. Error & 21.739 (df = 3224) \\ 
+    ## F Statistic & 849.054$^{***}$ (df = 6; 3224) \\ 
+    ## \hline 
+    ## \hline \\[-1.8ex] 
+    ## \textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+    ## \end{tabular} 
+    ## \end{table}
+
 From the table, we can see that besides female variable, the p-value for
 all other variables are smaller than 0.05, meaning they are significant
 in impacting the attitude towards Trump, and we will ignore the effect

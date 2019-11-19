@@ -1,0 +1,172 @@
+---
+title: "hw07_PartII"
+author: "bohan yin"
+date: "11/17/2019"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(broom)
+library(gamlr) 
+library(modelr)
+library(knitr)
+```
+
+
+```{r data read and clean}
+race_data <- rcfss::gss_colrac
+race_data <- race_data %>%
+  # combine both junior college and bachelor degree under the same category College
+  mutate(degree = recode(degree, 
+                         "Junior Coll" = "College", 
+                         "Bachelor deg" = "College")) %>%
+  filter(owngun != "REFUSED") # we drop this answer because it's needless
+
+```
+
+```{r}
+# Calculate the percentage of people agreeing on the survey question
+race_data$colrac <- as.numeric(race_data$colrac)
+answer_yes <- round(sum(race_data$colrac)/nrow(race_data), 2) *100
+  
+```
+
+## Part 2: Predicting attitudes towards racist college professors
+The General Social Survey (GSS) conducted the national survey with the question of "Should a person who believes that Blacks are genetically inferior be allowed to teach in a college or university?” Regarding this question, many explanations focus on a resource model of personal features – such as age, race, received education, income and etc. In its questionnaire, the respondents' were asked to respond to this question by filling out several columns of their personal information and thoughts, and according to the survey, `r answer_yes`% of Americans answered "Yes" to this question. How do those features affect the attitude towards racist college professors? How are they differ in terms of their influence?
+
+The following analysis tries to investigate in attitudes towards racism, using the GSS and this specific question. It aims to find some of the underlying factors that affect the attitude toward racist college professors. To perform this analysis, I used two models, one logistic regression model and one model from lasso penalized regression, and compared their results trying to see if there is a better model to fit.
+
+
+### Model 1
+
+Since it is not clear to decide what variables should select for this regression, the following analysis will compare two different models and check to see which one performs a better result. The first model is just a plain model, which includes all of the variables from the survey. The aic value reflects the predictive power of the model, which means that the lower aic value, the better the model is.
+
+
+```{r regression model, echo=FALSE}
+model1 <- glm(colrac ~ ., family = 'binomial', data = race_data)
+
+```
+
+Here is the glimpse of model 1
+
+```{r echo = FALSE}
+
+model_1 <- augment(model1, 
+                 type.predict = "response")  %>%
+  mutate(.pred = as.numeric(.fitted > .5))
+model_all_err_1 <- mean(model_1$colrac != model_1$.pred,
+                          na.rm = TRUE)
+  
+kable(tidy(model1),
+      #limit digits printed
+      digits = 4,
+      #change column names
+      col.names = c("Variable", "Coefficient", "Std. Error", "T-Statistic", "P Value"),
+      caption = "Logistic Regression Results")
+
+
+```
+
+The aic values for the first model is `r model1$aic`. If we evaluate the model by calculating how many prediction errors the model made, the error rate for model 1 is `r model_all_err_1`.
+
+### LASSO Regression (Model 2)
+
+Besides just simply relying on evaluating how many prediction errors the model made to do model selection, the Lasso regression model offers another approach when we want to choose the fit model to predict future outcomes. The goal of lasso regression is to obtain the subset of predictors that minimizes prediction error for a quantitative response variable. The lasso does this by imposing a constraint on the model parameters that causes regression coefficients for some variables to shrink toward zero. Lasso selection allows you to regularize ("shrink") coefficients. This means that the estimated coefficients are pushed towards 0, to make them work better on new data-sets ("optimized for prediction"). This allows you to use complex models and avoid over-fitting at the same time. 
+
+```{r}
+source('naref.R')
+data2 <- naref(race_data) # naref: make missing (NA) the reference level of a factor
+# Since this dataset  is a factor, we want to relevel it for the LASSO. 
+# We want each coefficient to be an intercept for each factor level rather than a contrast. 
+# look inside naref.R. This function relevels the factors for us.
+```
+
+
+```{r lasso}
+
+x <- sparse.model.matrix(colrac ~ ., data=data2)[,-1] 
+y <- data2$colrac
+lasso <- gamlr(x, y, family="binomial")
+
+plot(lasso, 
+     main = 'Figure 1: Coefficient selecting plot',
+     xlab = 'Log lambda',
+     ylab = 'Coefficients')
+
+```
+
+Figure 1 shows the coefficient selecting plot by lasso regression. The dotted line in the middle is the cut line where some coefficients are dropped (or shrink to 0), and some are kept with the optimal lambda value. 
+
+Here is the result of selected variables with their coefficients by lasso regression.
+
+```{r}
+coef(lasso)
+```
+
+The second model select variables based on the result from lasso regression. The second model selects relatively fewer variables than the first model. It ignores whether repspondent is African American, gebder, egalitarianism scale, attitude on legal marijuana, hispanic race, party identification, wordsum (number words correct in vocab test) and zodiac. The regression model is:
+
+- colrac = beta0 + beta1age + beta2degree + beta3owngun + beta4polviews + beta5social_cons3 + beta6south + beta7tolerance
+
+
+```{r}
+model2 <- glm(colrac ~ age + degree + owngun + polviews + social_cons3 + south + tolerance, 
+              family = 'binomial', data = race_data)
+
+```
+So how does it perform? The aic for this model2 is `r model2$aic`, lower than the model 1's aic value.
+
+
+What about the error rate for model 2?
+
+```{r include = FALSE}
+model_2 <- augment(model2, 
+                 type.predict = "response")  %>%
+  mutate(.pred = as.numeric(.fitted > .5))
+model_all_err_2 <- mean(model_2$colrac != model_2$.pred,
+                          na.rm = TRUE)
+```
+
+It is actually `r model_all_err_2`, roughly `r model_all_err_2 - model_all_err_1` higher. Even though the results seem contradict to each other, I would consider model2 as the better model, because it might be possible that the reason model 1 has lower error rate than model 2 is because model 1 have all the variables included. So the rest of the analysis will focus on model 2.
+
+
+### Interpreting the coefficients
+
+Interestingly, the model didn't select some variables which I initially thought were very important factors, such as race and sex.
+Since the number of coefficients is large, it might be difficult to present the result through coefficient plot. Instead, here is the table:
+
+```{r}
+kable(tidy(model2),
+      #limit digits printed
+      digits = 4,
+      #change column names
+      col.names = c("Variable", "Coefficient", "Std. Error", "T-Statistic", "P Value"),
+      caption = "Logistic Regression Results")
+```
+
+Checing from P-value, we found that degree, political identification as extreme conservative, being socially conservative, coming from South and tolerance are significant variables we should consider.  In particular, there are several variables that influence the attitude at a higher degree:
+
+- Compared with being a conservative, an extreme conservative people will increase the odd to allow racist to teach in college by 0.96 (1.558-0.333-0.260).
+- Compared with a high school degree people, a graduate degree people will become less likely to allow racist to teach in college by 0.186.
+
+Overall, we can see that the factors that affecting attitude on allowing racist to teach in college are related to:
+
+- The level of people get educated
+- The political identifications
+- The attitude towards social conservatism
+- Whether people is from South
+
+### Limitations
+The analysis is still short in many aspects, especially on the build of model. The first is the problem of multicollinearity that there might be linear relationship between variables. Some of the variables might have joint effect that we didn't discover, making the model less powerful in prediction. Since most variables are categorical variables, it is hard to decide when and how to add polynomial terms in the model. In particular, the income in this data is categorized as factor, rather than numeric variables, so I cannot add squared term to the income.
+In addition, other confounding variables: there might be confounding variables that the model fail to include, and thus the result is not accurate and the model is not stable.
+
+
+
+### Reference
+[lasso](https://stats.stackexchange.com/questions/251708/when-to-use-ridge-regression-and-lasso-regression-what-can-be-achieved-while-us)
+
+

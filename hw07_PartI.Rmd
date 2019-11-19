@@ -2,13 +2,18 @@
 title: "hw07 Part I"
 author: "bohan yin"
 date: "11/14/2019"
-output: github_document
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+options(tinytex.verbose = TRUE)
 library(tidyverse)
 library(broom)
+library(stargazer)
 ```
 
 
@@ -20,7 +25,7 @@ trump_data <- read.csv('data/trump.csv')
 
 The basic linear regression model of the relationship between the importance of the video and feelings towards Donald Trump is expressed as:
 
-- Attitudes = β0 + β1video
+- Attitudes = beta0 + beta1video
 
 Here is the result of the regression model. As we can see, the p.value is zero, meaning that the video variable is very significant in influncing feelings towards Trump in this basic model. 
 
@@ -72,16 +77,28 @@ From the graph, we can see that the feelings and importance of the video are clu
 
 The linear regression model of attitudes towards Donald Trump given the variables available is written as: <br/>
 
-- Attitudes = β0 + β1video + β2female + β3pi + β4age + β5educ + β6video*pid <br/>
+- Attitudes = beta0 + beta1video + beta2female + beta3pi + beta4age + beta5educ + beta6video*pid <br/>
 
 Notice that I added interaction term: video*pid, as there might be some joint effects of both attitude toward video and party identification.
 The table below shows the result of the model:
 
-```{r regression model}
+```{r regression model, results='asis'}
 ## Estimate a linear regression model of attitudes towards Donald Trump given the variables available. 
 # Here besides available variables the original data has, I added an interaction term to the model: video*pid
 lm_model <- lm(trump ~ video + female + pid + age + educ + video:pid, data = trump_data)
 tidy(lm_model)
+
+stargazer(lm_model, 
+          header = FALSE,
+          title = "Table 1: Regression Results Importance of the Video and Feelings towards Trump",
+          covariate.labels = c("Importance of the video",
+                               "Female",
+                               "Party Identification(pid)",
+                               "Age",
+                               "Education",
+                               "Joint effect of video and pid"),
+          dep.var.labels = "Feelings towards Trump",
+          type = 'latex')
 
 ```
 
