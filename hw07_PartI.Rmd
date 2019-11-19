@@ -1,0 +1,169 @@
+---
+title: "hw07 Part I"
+author: "bohan yin"
+date: "11/14/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(broom)
+```
+
+
+```{r import trump data}
+trump_data <- read.csv('data/trump.csv') 
+```
+
+## Estimate a basic (single variable) linear regression model of the relationship between the importance of the video and feelings towards Donald Trump.
+
+The basic linear regression model of the relationship between the importance of the video and feelings towards Donald Trump is expressed as:
+
+- Attitudes = β0 + β1video
+
+Here is the result of the regression model. As we can see, the p.value is zero, meaning that the video variable is very significant in influncing feelings towards Trump in this basic model. 
+
+```{r basic regression, echo=FALSE}
+model_video <-  lm(trump ~ video, trump_data)
+broom::tidy(model_video) # take a straight view of the result
+```
+
+Here is a visualized result. From the graph we can see that as importance of the video drops, the feelings towards Trump rises.
+
+```{r plot basic regression}
+basic_plot <- ggplot(model_video, aes(trump, video))+
+  geom_point(alpha = 0.1)+
+  geom_smooth(method = 'lm',
+              color = 'purple') +
+  labs(title = 'The relationship between the importance of the video and feelings towards 
+       Donald Trump',
+       x = 'Feelings towards Trump',
+       y = 'Importance of the video')
+basic_plot
+```
+
+If we want to see the predictive power of this model, here is a more intuitive visualization.
+
+```{r plot2, echo=FALSE}
+## Prediction
+pred <- augment(model_video) # the augment() function takes a model object and a data frame, and uses the model to generate predictions for each observation in the data frame
+# plotting prediction
+p <- ggplot(data = pred,
+          aes(x = video,
+              y = .fitted),
+          alpha = 0.5)
+p +  geom_jitter(alpha = 0.5) + # geom_jitter is good at presenting very concentrated data
+  geom_line(color = 'purple') +
+  labs(title = "Relationship between the importance of the video and feelings towards 
+       Donald Trump, using predicted values",
+       x = 'Importance of the video',
+       y = 'Feelings towards Trump'
+  )
+
+
+
+```
+<br/>
+From the graph, we can see that the feelings and importance of the video are clustered in different rectangles. Each rectangle represents different set of combinations of the range of feelings and range of video importance. For example, the second rectangle starting from the left shows that people who rate importance of the video as 1 feel warmth toward Trump ranging from 50 to 60. In addition, the fifth rectangel starting from the left seems the darkest, meaning that this cluster has the most people who think video is very important and don't like Trump.
+
+
+## Estimate a linear regression model of attitudes towards Donald Trump given the variables you have available. 
+
+The linear regression model of attitudes towards Donald Trump given the variables available is written as: <br/>
+
+- Attitudes = β0 + β1video + β2female + β3pi + β4age + β5educ + β6video*pid <br/>
+
+Notice that I added interaction term: video*pid, as there might be some joint effects of both attitude toward video and party identification.
+The table below shows the result of the model:
+
+```{r regression model}
+## Estimate a linear regression model of attitudes towards Donald Trump given the variables available. 
+# Here besides available variables the original data has, I added an interaction term to the model: video*pid
+lm_model <- lm(trump ~ video + female + pid + age + educ + video:pid, data = trump_data)
+tidy(lm_model)
+
+```
+
+From the table, we can see that besides female variable, the p-value for all other variables are smaller than 0.05, meaning they are significant in impacting the attitude towards Trump, and we will ignore the effect of female as it is not significant. Specifically, when we talk about participants' attitudes toward Trump in terms of feeling thermometer rating: 
+
+- For every unit increase in video response, the attitude drops roughly 7.5 on the rating.
+- For every unit increase in party identification, or becomeing more republican, the attitude rises roughly 8.8 on the rating.
+- For every unit increase in age, the attitude slightly rises 0.1 on the rating.
+- For every unit increase in education, the attitude drops roughly 1.3 on the rating.
+ 
+
+## Coefficient plot
+
+If we want to check the result in an intuitive manner, here is the coefficient plot that contains coefficients of variables on affecting the attitude:
+
+```{r, echo = FALSE}
+## Generating coefficient plot
+mod_coef <- tidy(lm_model, conf.int = TRUE) # write coefficients in a dataframe
+mod_coef %>%
+  filter(term != "(Intercept)") %>%
+  mutate(
+    # fix variable labels
+    term = recode(
+      term,
+      video = "degree of video's effect",
+      female = "Participant is female",
+      pid = "Party Identification 
+      (0 as strong democrat to 6 as strong republican)",
+      educ = "measure of educational attainment"
+    )
+  ) %>%
+  # generate plot
+  ggplot(mapping = aes(x = fct_reorder(term, estimate),
+                       y = estimate,
+                       ymin = conf.low,
+                       ymax = conf.high)) +
+  geom_pointrange() +
+  coord_flip() +
+  labs(x = "Coefficient",
+       y = "Value",
+       title = 'Coefficient plot')
+```
+
+Same as the analysis stated previously, this plot offers a more intuitive result. As we can see, the increase in party identification positively affects the attitude toward Trump, meaning that the more republican you are, the more favor you have on Trump; the increase in degree of video's effect negatively affects the attitude toward Trump, meaning that the more important you think the video is, the less favor you have on Trump. <br/> <br/>
+
+## Evaluation
+We can also do a simple evaluation of this model. As we can see from the summary below, the R-squared is `r summary(lm_model)$r.squared`, which means that the model explains 61.24% variations of the dependent variable (in this case, the attitude towards Trump).
+
+```{r details of the model}
+summary(lm_model)
+
+```
+
+<br/>
+Here is the residual plot for the model, which only has symmetrical distribution when predicted attitude is around 50. And residuals do not really clustered around the lower single digits of the y-axis. This means tht this model still has a huge room of improvement.
+
+```{r residuals}
+# Plot residuals of this model
+res2 <- lm_model$residuals
+plot(trump_data$trump, res2,
+     main = 'Residual plot',
+     xlab = 'Predicted attitude',
+     ylab = 'Standardized residuals')
+
+```
+
+<br/><br/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
