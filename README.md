@@ -13,5 +13,5 @@ You can find my assignments here:
 The required packages expected to install:
 
 ```r
-install.packages(c("tidyverse", "broom", "stargazer", "modelr", "knitr"))
+install.packages(c("tidyverse", "broom", "stargazer", "modelr", "knitr", "gamlr"))
 ```
