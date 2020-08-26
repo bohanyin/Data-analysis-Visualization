@@ -1,4 +1,4 @@
-# hw07
+# Introduction
 In this assignment, I had the chance use some of my statistical background to perform data analysis and data visualization.
 The first part of the assignment is using the data related to President Trump to perform analysis on how people's attitude towards him changes under different factors' influence. The second part of the assignment focuses on the topic of how does people's opinion on allowing racists teacher to teach in college be affected by various factors. In particular, I used two models to perform the analysis, and I chose one of the model that I consider to be better after comparing their performance. The rest of part 2 also conducts result interpretation and limitation section.
 
