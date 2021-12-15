@@ -1,5 +1,5 @@
 ---
-title: "hw07 Part I"
+title: "Part I"
 author: "Bohan Yin"
 date: "11/14/2019"
 output:
